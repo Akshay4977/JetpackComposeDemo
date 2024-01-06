@@ -67,4 +67,5 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation ("com.squareup.okhttp3:okhttp:3.10.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
 }

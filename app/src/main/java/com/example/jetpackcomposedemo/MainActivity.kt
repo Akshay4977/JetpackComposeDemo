@@ -1,5 +1,7 @@
 package com.example.jetpackcomposedemo
 
+
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -23,8 +25,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -34,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,25 +49,59 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-
-
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
 
+
+    @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            CircularProgressBarDemo(percentage = 0.8f, number = 100)
+            //   CircularProgressBarDemo(percentage = 0.8f, number = 100)
+
+            val viewModel = viewModel<MainViewModel>()
+            val time = viewModel.countDownTimer.collectAsState(initial = 10)
+            val count = viewModel.stateFlow.collectAsState(initial = 10)
+
+            //    timerWithFlow(time.value.toString())
+            // rememberScope(count.value.toString())
+
+
+            //increment counter to demonstrate state flow
+            Box(modifier = Modifier.fillMaxSize()) {
+
+                Button(modifier = Modifier
+                    .width(200.dp)
+                    .height(50.dp),
+                    onClick = {
+                        viewModel.incrementCounter()
+                    }
+                ) {
+                    Text(text = "counter:  ${count.value}")
+                }
+            }
         }
+    }
+}
+
+
+@Composable
+fun timerWithFlow(time: String) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = time,
+            fontSize = 20.sp,
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }
 
@@ -198,16 +237,19 @@ fun SideEffectDemo() {
 }
 
 @Composable
-fun rememberScope() {
+fun rememberScope(count: String) {
     val scope = rememberCoroutineScope()
-    Button(
-        onClick = {
-            scope.launch {
-                Log.d("inside", "here")
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Button(modifier = Modifier
+            .width(200.dp)
+            .height(50.dp),
+            onClick = {
+
             }
+        ) {
+            Text(text = "counter:  $count")
         }
-    ) {
-        Log.d("inside", "here1")
     }
 }
 
@@ -273,8 +315,6 @@ fun listDemo() {
             )
 
         }
-
-
     }
 }
 
