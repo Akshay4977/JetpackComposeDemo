@@ -3,6 +3,7 @@ package com.example.jetpackcomposedemo
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.reduce
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainViewModel : ViewModel() {
 
@@ -32,6 +34,12 @@ class MainViewModel : ViewModel() {
     private val _stateFlow = MutableStateFlow(0)
      val stateFlow = _stateFlow.asStateFlow()
 
+    companion object{
+        const val name : String ="aks"
+        fun getName(){
+
+        }
+    }
 
     init {
         //stateAndSharedFLow()
@@ -40,6 +48,26 @@ class MainViewModel : ViewModel() {
 
     fun incrementCounter(){
         _stateFlow.value = stateFlow.value + 1
+    }
+    fun game(){
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) {
+                launch {
+                        delay(5000L)
+                        Log.e("inside","here1")
+                    }
+
+                launch {
+                    delay(2000L)
+                    Log.e("inside","here2")
+                }
+
+                launch {
+                    delay(500L)
+                    Log.e("inside","here3")
+                }
+            }
+        }
     }
 
 
