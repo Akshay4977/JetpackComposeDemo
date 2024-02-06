@@ -1,4 +1,4 @@
-package com.example.jetpackcomposedemo
+package com.example.jetpackcomposedemo.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

@@ -1,4 +1,4 @@
-package com.example.jetpackcomposedemo;
+package com.example.jetpackcomposedemo.models;
 
 import java.util.List;
 import com.google.gson.annotations.SerializedName;

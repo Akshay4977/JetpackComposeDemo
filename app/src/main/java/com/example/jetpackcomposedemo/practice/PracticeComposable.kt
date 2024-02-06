@@ -1,4 +1,4 @@
-package com.example.jetpackcomposedemo
+package com.example.jetpackcomposedemo.practice
 
 import android.annotation.SuppressLint
 import android.util.Log

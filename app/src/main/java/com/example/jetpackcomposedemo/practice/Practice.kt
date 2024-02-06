@@ -1,6 +1,7 @@
-package com.example.jetpackcomposedemo
+package com.example.jetpackcomposedemo.practice
 
 import android.util.Log
+import com.example.jetpackcomposedemo.viewmodel.MainViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.system.measureTimeMillis
