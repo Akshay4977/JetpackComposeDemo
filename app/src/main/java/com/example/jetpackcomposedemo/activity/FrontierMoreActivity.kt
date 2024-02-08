@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.jetpackcomposedemo.R
-import com.example.jetpackcomposedemo.models.Item
+import com.example.jetpackcomposedemo.models.CardObject
 import com.example.jetpackcomposedemo.models.LegalObject
 import com.example.jetpackcomposedemo.models.ResponseDemo
 import com.example.jetpackcomposedemo.retrofit.RetrofitInstance
@@ -101,6 +101,19 @@ fun MainView() {
         )
     }
 
+    var cardList by remember {
+        mutableStateOf(
+            mutableStateListOf(
+                CardObject(
+                    "",
+                    "https://plus.unsplash.com/premium_photo-1661281282296-3fa2a9f73dbe?q=80&w=3571&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                    null,
+                    "Deals"
+                )
+            )
+        )
+    }
+
     var context = LocalContext.current
 
     LaunchedEffect(true) {
@@ -111,6 +124,7 @@ fun MainView() {
             screenTitle = documents.get(0).titleText
             couponUnitText = documents.get(0).couponUnitText
             list = documents.get(0).legalObject.toMutableStateList()
+            cardList = documents.get(0).cardObject.toMutableStateList()
 
             imageSettingUrl = documents.get(0).settingIcon.asset.finalUrl
             imageUserUrl = documents.get(0).userIcon.asset.finalUrl
@@ -243,7 +257,7 @@ fun MainView() {
                 .fillMaxHeight(0.93F),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            gridView(LocalContext.current)
+            gridView(LocalContext.current, cardList)
 
             Column(
                 modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start
@@ -262,36 +276,18 @@ fun MainView() {
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun gridView(context: Context) {
-    lateinit var dummyData: List<Item>
-    dummyData = ArrayList<Item>()
-
-    dummyData = dummyData + Item(
-        "Deals",
-        "https://plus.unsplash.com/premium_photo-1661281282296-3fa2a9f73dbe?q=80&w=3571&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        R.drawable.baseline_local_offer_24
-    )
-    dummyData = dummyData + Item(
-        "Book Hotel",
-        "https://images.pexels.com/photos/262048/pexels-photo-262048.jpeg?auto=compress&cs=tinysrgb&w=800",
-        R.drawable.baseline_hotel_24
-    )
-    dummyData = dummyData + Item(
-        "Inflight Menu",
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtAv2SoxqMqSO-6ZMeNuFcb1qvnnrpV_vQtjA177z1q1XOj2qTkyCHur0X2PXkvY5RhYw&usqp=CAU",
-        R.drawable.baseline_fastfood_24
-    )
+fun gridView(context: Context, list: List<CardObject>) {
 
     LazyVerticalGrid(
         GridCells.Fixed(2), modifier = Modifier.padding(8.dp)
     ) {
 
-        items(dummyData.size) {
+        items(list.size) {
 
             Card(
                 onClick = {
                     Toast.makeText(
-                        context, dummyData[it].name + " selected..", Toast.LENGTH_SHORT
+                        context, list[it].title + " selected..", Toast.LENGTH_SHORT
                     ).show()
                 },
                 shape = RoundedCornerShape(0.dp, 0.dp, 8.dp, 8.dp),
@@ -313,7 +309,7 @@ fun gridView(context: Context) {
                     ) {
 
                         Image(
-                            painter = rememberAsyncImagePainter(dummyData[it].itemImage),
+                            painter = rememberAsyncImagePainter(list[it].cardUrl),
                             contentDescription = "option image",
                             Modifier
                                 .fillMaxWidth()
@@ -329,14 +325,17 @@ fun gridView(context: Context) {
                                 .wrapContentWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Image(
-                                painter = painterResource(id = dummyData[it].icon),
-                                contentDescription = "ic launcher",
-                                Modifier
-                                    .height(20.dp)
-                                    .width(20.dp)
-                            )
-
+                            if (list[it].cardIcon != null) {
+                                if (list[it].cardIcon.asset.finalUrl != null) {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(list[it].cardIcon.asset.finalUrl),
+                                        contentDescription = "ic launcher",
+                                        Modifier
+                                            .height(20.dp)
+                                            .width(20.dp)
+                                    )
+                                }
+                            }
                             Column(
                                 modifier = Modifier
                                     .wrapContentHeight()
@@ -345,7 +344,7 @@ fun gridView(context: Context) {
                             ) {
 
                                 Text(
-                                    text = dummyData[it].name,
+                                    text = list[it].title,
                                     textAlign = TextAlign.Center,
                                     fontSize = 14.sp,
                                     color = colorResource(id = R.color.black)

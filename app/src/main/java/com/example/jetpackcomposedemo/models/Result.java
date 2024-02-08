@@ -45,6 +45,9 @@ public class Result {
     @SerializedName("legalObject")
     private List<LegalObject> legalObject;
 
+    @SerializedName("cardObject")
+    private List<CardObject> cardObject;
+
     public void setType(String Type) {
         this.Type = Type;
     }
@@ -165,5 +168,13 @@ public class Result {
 
     public void setLegalObject(List<LegalObject> legalObject) {
         this.legalObject = legalObject;
+    }
+
+    public List<CardObject> getCardObject() {
+        return cardObject;
+    }
+
+    public void setCardObject(List<CardObject> cardObject) {
+        this.cardObject = cardObject;
     }
 }

@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -44,22 +45,27 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.jetpackcomposedemo.R
 import com.example.jetpackcomposedemo.models.ResponseDemo
 import com.example.jetpackcomposedemo.retrofit.RetrofitInstance
+import com.example.jetpackcomposedemo.viewmodel.LoginViewModel
 import kotlinx.coroutines.delay
 
+
 class LoginActivity : ComponentActivity() {
+    private val loginViewModel: LoginViewModel by viewModels()
+
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            SimpleTextFieldExample1()
+            SimpleTextFieldExample1(loginViewModel)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimpleTextFieldExample1() {
+fun SimpleTextFieldExample1(loginViewModel: LoginViewModel) {
+
     var userNameText by remember { mutableStateOf("") }
     var userNameLabel by remember { mutableStateOf("email") }
 
@@ -76,6 +82,11 @@ fun SimpleTextFieldExample1() {
         mutableStateOf<ResponseDemo?>(null)
     }
 
+    LaunchedEffect(key1 = loginViewModel.responseDemo) {
+        loginViewModel.getLoginDocuments()
+    }
+    Log.e("inside", "-->" + loginViewModel.responseDemo.value?.result?.get(0)?.loginButtonType)
+
     LaunchedEffect(true) {
         try {
             delay(3000)
@@ -84,11 +95,10 @@ fun SimpleTextFieldExample1() {
             userNameLabel = documents.get(0).userNameFieldType
             passwordLabel = documents.get(0).passwordFieldType
             loginButtonLabel = documents.get(0).loginButtonTitle
-            val logoString: String = documents.get(0).bannerImage.asset.ref
 
-            frontierLogoImageUserUrl = documents.get(0).bannerImage.asset.getFinalUrl()
+            frontierLogoImageUserUrl = documents.get(0).bannerImage.asset.finalUrl
 
-            Log.e("inside", "temp->" + documents.get(0).bannerImage.asset.getFinalUrl())
+            Log.e("inside", "temp->" + documents.get(0).bannerImage.asset.finalUrl)
             Log.e("inside", "" + frontierLogoImageUserUrl)
         } catch (e: Exception) {
             Log.e("inside", "exception")
