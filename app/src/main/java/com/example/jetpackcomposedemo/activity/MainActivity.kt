@@ -97,7 +97,7 @@ fun SimpleTextFieldExample(passwordFieldType: String) {
     LaunchedEffect(true) {
         try {
             delay(3000)
-            response = RetrofitInstance().getData()
+            response = RetrofitInstance().getData1()
             val documents = response!!.result
             lable = documents.get(0).passwordFieldType
             Log.e("inside", "->" + lable)

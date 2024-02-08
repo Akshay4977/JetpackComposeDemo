@@ -35,8 +35,6 @@ class Practice {
         }
     }
 
-
-
     fun MainViewModel.extensionFunctionDemo(marks: Int): Boolean {
         return marks > 90
     }

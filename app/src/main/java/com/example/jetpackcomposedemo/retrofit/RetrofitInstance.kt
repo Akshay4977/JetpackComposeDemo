@@ -7,16 +7,23 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class RetrofitInstance {
-    suspend fun getData(): ResponseDemo {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://kq4riuh0.api.sanity.io/v2022-03-07/data/query/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+    private fun getRetrofit(): Retrofit {
+        return Retrofit.Builder().baseUrl("https://kq4riuh0.api.sanity.io/v1/data/query/")
+            .addConverterFactory(GsonConverterFactory.create()).build()
 
-        val sanityApiService = retrofit.create(SanityApiService::class.java)
-
+    }
+    suspend fun getData1(): ResponseDemo {
+        val sanityApiService = getRetrofit().create(SanityApiService::class.java)
         return withContext(Dispatchers.IO) {
             sanityApiService.getMoreDocuments()
         }
     }
+    suspend fun getLoginDocuments(): ResponseDemo {
+
+        val sanityApiService = getRetrofit().create(SanityApiService::class.java)
+        return withContext(Dispatchers.IO) {
+            sanityApiService.getLoginDocuments()
+        }
+    }
+
 }
