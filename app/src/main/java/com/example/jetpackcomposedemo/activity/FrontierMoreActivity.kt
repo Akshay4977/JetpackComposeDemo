@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.jetpackcomposedemo.R
 import com.example.jetpackcomposedemo.models.Item
-import com.example.jetpackcomposedemo.models.ItemLegal
 import com.example.jetpackcomposedemo.models.LegalObject
 import com.example.jetpackcomposedemo.models.ResponseDemo
 import com.example.jetpackcomposedemo.retrofit.RetrofitInstance
@@ -112,9 +111,6 @@ fun MainView() {
             screenTitle = documents.get(0).titleText
             couponUnitText = documents.get(0).couponUnitText
             list = documents.get(0).legalObject.toMutableStateList()
-
-            Log.e("inside", "title->" + documents.get(0).legalObject.get(1).title)
-            Log.e("inside", "->" + documents.get(0).userIcon.asset.ref)
 
             imageSettingUrl = documents.get(0).settingIcon.asset.finalUrl
             imageUserUrl = documents.get(0).userIcon.asset.finalUrl
@@ -366,26 +362,6 @@ fun gridView(context: Context) {
 
 @Composable
 fun LegalSection(context: Context, list: List<LegalObject>) {
-    lateinit var dummyLegalSectionData: List<ItemLegal>
-    dummyLegalSectionData = ArrayList<ItemLegal>()
-
-    dummyLegalSectionData = dummyLegalSectionData + ItemLegal(
-        "Terms and conditions",
-        R.drawable.baseline_keyboard_arrow_right_24,
-        R.drawable.baseline_insert_drive_file_24
-    )
-
-    dummyLegalSectionData = dummyLegalSectionData + ItemLegal(
-        "Privacy Policy",
-        R.drawable.baseline_keyboard_arrow_right_24,
-        R.drawable.baseline_privacy_tip_24
-    )
-
-    dummyLegalSectionData = dummyLegalSectionData + ItemLegal(
-        "California Privacy Policy",
-        R.drawable.baseline_keyboard_arrow_right_24,
-        R.drawable.baseline_privacy_tip_24
-    )
 
     LazyColumn {
 
