@@ -30,7 +30,6 @@ public class Asset {
     public String getFinalUrl() {
         String[] logoStringArray = ref.split("-");
         String url = "https://cdn.sanity.io/images/kq4riuh0/production/" + logoStringArray[1].toString() + "-" + logoStringArray[2] + "." + logoStringArray[3];
-        Log.e("inside", "->" +  url);
         return url;
     }
 }

@@ -10,7 +10,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,8 +49,6 @@ import com.example.jetpackcomposedemo.R
 import com.example.jetpackcomposedemo.models.ResponseDemo
 import com.example.jetpackcomposedemo.retrofit.RetrofitInstance
 import com.example.jetpackcomposedemo.viewmodel.LoginViewModel
-import kotlinx.coroutines.delay
-
 
 class LoginActivity : ComponentActivity() {
     private val loginViewModel: LoginViewModel by viewModels()
@@ -82,26 +83,42 @@ fun SimpleTextFieldExample1(loginViewModel: LoginViewModel) {
         mutableStateOf<ResponseDemo?>(null)
     }
 
+    var isLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isLoading) {
+        if (isLoading) {
+            loginViewModel.getLoginDocuments()
+        } else {
+            loginViewModel.getLoginDocuments()
+        }
+    }
+
     LaunchedEffect(key1 = loginViewModel.responseDemo) {
         loginViewModel.getLoginDocuments()
     }
-    Log.e("inside", "-->" + loginViewModel.responseDemo.value?.result?.get(0)?.loginButtonType)
 
-    LaunchedEffect(true) {
-        try {
-            delay(3000)
-            response = RetrofitInstance().getLoginDocuments()
-            val documents = response!!.result
-            userNameLabel = documents.get(0).userNameFieldType
-            passwordLabel = documents.get(0).passwordFieldType
-            loginButtonLabel = documents.get(0).loginButtonTitle
+    if (loginViewModel.responseDemo.value != null) {
+        val result = loginViewModel.responseDemo.value?.result?.get(0)
+        userNameLabel = result!!.userNameFieldType
+        passwordLabel = result.passwordFieldType
+        loginButtonLabel = result.loginButtonTitle
+        frontierLogoImageUserUrl = result.bannerImage.asset.finalUrl
+    } else {
+        LaunchedEffect(true) {
+            try {
+                response = RetrofitInstance().getLoginDocuments()
+                val documents = response!!.result
+                userNameLabel = documents.get(0).userNameFieldType
+                passwordLabel = documents.get(0).passwordFieldType
+                loginButtonLabel = documents.get(0).loginButtonTitle
 
-            frontierLogoImageUserUrl = documents.get(0).bannerImage.asset.finalUrl
+                frontierLogoImageUserUrl = documents.get(0).bannerImage.asset.finalUrl
 
-            Log.e("inside", "temp->" + documents.get(0).bannerImage.asset.finalUrl)
-            Log.e("inside", "" + frontierLogoImageUserUrl)
-        } catch (e: Exception) {
-            Log.e("inside", "exception")
+                Log.e("inside", "temp->" + documents.get(0).bannerImage.asset.finalUrl)
+                Log.e("inside", "" + frontierLogoImageUserUrl)
+            } catch (e: Exception) {
+                Log.e("inside", "exception")
+            }
         }
     }
 
@@ -118,7 +135,31 @@ fun SimpleTextFieldExample1(loginViewModel: LoginViewModel) {
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(30.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+
+                Image(painter = painterResource(id = R.drawable.baseline_refresh_24),
+                    contentDescription = "ic user",
+                    Modifier
+                        .clickable {
+                            isLoading = !isLoading
+                            Toast
+                                .makeText(
+                                    context, "Refreshing...", Toast.LENGTH_SHORT
+                                )
+                                .show()
+                        }
+                        .height(25.dp)
+                        .width(25.dp)
+                        .padding(5.dp, 0.dp, 0.dp, 0.dp))
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
 
             if (!frontierLogoImageUserUrl.isEmpty() && frontierLogoImageUserUrl != null) {
                 Image(

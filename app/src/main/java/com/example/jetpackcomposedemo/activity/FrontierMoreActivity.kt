@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,7 +30,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,45 +60,44 @@ import com.example.jetpackcomposedemo.models.CardObject
 import com.example.jetpackcomposedemo.models.LegalObject
 import com.example.jetpackcomposedemo.models.ResponseDemo
 import com.example.jetpackcomposedemo.retrofit.RetrofitInstance
-import kotlinx.coroutines.delay
+import com.example.jetpackcomposedemo.viewmodel.LoginViewModel
 
 class FrontierMoreActivity : ComponentActivity() {
+    private val loginViewModel: LoginViewModel by viewModels()
 
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            FrontierMoreComposable()
+            FrontierMoreComposable(loginViewModel)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FrontierMoreComposable() {
-    MainView()
+fun FrontierMoreComposable(loginViewModel: LoginViewModel) {
+    MainView(loginViewModel)
 }
 
 @Composable
-fun MainView() {
+fun MainView(loginViewModel: LoginViewModel) {
     var response by remember {
         mutableStateOf<ResponseDemo?>(null)
-    }
-    val reloadState = remember {
-        mutableStateOf(0)
     }
 
     var imageSettingUrl by remember { mutableStateOf("") }
     var imageUserUrl by remember { mutableStateOf("") }
     var screenTitle by remember { mutableStateOf("More Option") }
     var couponUnitText by remember { mutableStateOf("") }
+    var context = LocalContext.current
 
     var list by remember {
         mutableStateOf(
             mutableStateListOf(
                 LegalObject(
-                    "", null, null, "Terms and conditions"
+                    "", null, null, "Terms and conditions", "Terms and conditions"
                 )
             )
         )
@@ -114,25 +116,48 @@ fun MainView() {
         )
     }
 
-    var context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false) }
 
-    LaunchedEffect(true) {
-        try {
-            delay(3000)
-            response = RetrofitInstance().getData1()
-            val documents = response!!.result
-            screenTitle = documents.get(0).titleText
-            couponUnitText = documents.get(0).couponUnitText
-            list = documents.get(0).legalObject.toMutableStateList()
-            cardList = documents.get(0).cardObject.toMutableStateList()
-
-            imageSettingUrl = documents.get(0).settingIcon.asset.finalUrl
-            imageUserUrl = documents.get(0).userIcon.asset.finalUrl
-
-        } catch (e: Exception) {
-            Log.e("inside", "exception")
+    LaunchedEffect(isLoading) {
+        if (isLoading) {
+            loginViewModel.getMoreDocuments()
+        } else {
+            loginViewModel.getMoreDocuments()
         }
     }
+
+    LaunchedEffect(key1 = loginViewModel.responseMoreDemo) {
+        loginViewModel.getMoreDocuments()
+    }
+
+    if (loginViewModel.responseMoreDemo.value != null) {
+        val result = loginViewModel.responseMoreDemo.value?.result?.get(0)
+        screenTitle = result!!.titleText
+        couponUnitText = result.couponUnitText
+        list = result.legalObject.toMutableStateList()
+        cardList = result.cardObject.toMutableStateList()
+
+        imageSettingUrl = result.settingIcon.asset.finalUrl
+        imageUserUrl = result.userIcon.asset.finalUrl
+    } else {
+        LaunchedEffect(true) {
+            try {
+                response = RetrofitInstance().getData1()
+                val documents = response!!.result
+                screenTitle = documents.get(0).titleText
+                couponUnitText = documents.get(0).couponUnitText
+                list = documents.get(0).legalObject.toMutableStateList()
+                cardList = documents.get(0).cardObject.toMutableStateList()
+
+                imageSettingUrl = documents.get(0).settingIcon.asset.finalUrl
+                imageUserUrl = documents.get(0).userIcon.asset.finalUrl
+
+            } catch (e: Exception) {
+                Log.e("inside", "exception")
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -207,6 +232,21 @@ fun MainView() {
                             color = colorResource(id = R.color.primarycolor)
                         )
                     }
+
+                    Image(painter = painterResource(id = R.drawable.baseline_refresh_24),
+                        contentDescription = "ic user",
+                        Modifier
+                            .clickable {
+                                isLoading = !isLoading
+                                Toast
+                                    .makeText(
+                                        context, "Refreshing...", Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            }
+                            .height(25.dp)
+                            .width(25.dp)
+                            .padding(5.dp, 0.dp, 0.dp, 0.dp))
                 }
             }
 
@@ -216,11 +256,9 @@ fun MainView() {
                 fontSize = 16.sp,
                 modifier = Modifier.weight(1f)
             )
-
             Box(
                 contentAlignment = Alignment.TopEnd
             ) {
-
                 if (imageSettingUrl != null && !imageSettingUrl.isEmpty()) {
                     Image(painter = rememberAsyncImagePainter(imageSettingUrl),
                         contentDescription = "ic launcher",
@@ -264,7 +302,7 @@ fun MainView() {
             ) {
                 Text(text = "Legal", modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 8.dp))
 
-                LegalSection(LocalContext.current, list)
+                LegalSection(LocalContext.current, list, loginViewModel)
             }
         }
     }
@@ -360,7 +398,7 @@ fun gridView(context: Context, list: List<CardObject>) {
 }
 
 @Composable
-fun LegalSection(context: Context, list: List<LegalObject>) {
+fun LegalSection(context: Context, list: List<LegalObject>, loginViewModel: LoginViewModel) {
 
     LazyColumn {
 
@@ -373,13 +411,11 @@ fun LegalSection(context: Context, list: List<LegalObject>) {
                         .fillMaxWidth()
                         .height(40.dp)
                         .clickable {
-
-                            Toast
-                                .makeText(
-                                    context, item.title + " selected..", Toast.LENGTH_SHORT
-                                )
-                                .show()
-
+                            if (loginViewModel.selectedLegalObject?.title.equals(item.title)) {
+                                loginViewModel.selectedLegalObject = null
+                            } else {
+                                loginViewModel.selectedLegalObject = item
+                            }
                         }, verticalAlignment = Alignment.CenterVertically
                 ) {
 
@@ -427,6 +463,24 @@ fun LegalSection(context: Context, list: List<LegalObject>) {
                             )
                         }
                     }
+                }
+                if (loginViewModel.selectedLegalObject?.title.equals(item.title)) {
+                    Row(
+                        modifier = Modifier
+                            .background(Color.White)
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        Text(
+                            text = item.legalDetails,
+                            modifier = Modifier
+                                .padding(8.dp, 8.dp, 8.dp, 8.dp)
+                                .verticalScroll(rememberScrollState()),
+                            fontSize = 12.sp
+                        )
+                    }
+                } else {
+                    Spacer(modifier = Modifier.height(1.dp))
                 }
 
                 Spacer(modifier = Modifier.height(1.dp))

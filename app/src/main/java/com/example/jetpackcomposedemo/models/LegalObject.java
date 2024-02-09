@@ -13,11 +13,15 @@ public class LegalObject {
     @SerializedName("title")
     private String title;
 
-    public LegalObject(String key, SettingIcon nextIcon, SettingIcon legalIcon, String title) {
+    @SerializedName("legalDetails")
+    private String legalDetails;
+
+    public LegalObject(String key, SettingIcon nextIcon, SettingIcon legalIcon, String title, String legalDetails) {
         this.key = key;
         this.nextIcon = nextIcon;
         this.legalIcon = legalIcon;
         this.title = title;
+        this.legalDetails = legalDetails;
     }
 
     public String getKey() {
@@ -50,5 +54,13 @@ public class LegalObject {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getLegalDetails() {
+        return legalDetails;
+    }
+
+    public void setLegalDetails(String legalDetails) {
+        this.legalDetails = legalDetails;
     }
 }
